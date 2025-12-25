@@ -68,6 +68,7 @@ public class Main
         }
 
         taskManager.addTask(title);
+        saveSafely();
         System.out.println("Task added!");
         pause();
     }
@@ -95,6 +96,7 @@ public class Main
         if (taskManager.isEmpty())
         {
             System.out.println("No tasks to mark.");
+            saveSafely();
             pause();
             return;
         }
@@ -168,4 +170,17 @@ public class Main
             }
         }
     }
+
+    private static void saveSafely()
+    {
+        try
+        {
+            repository.save(taskManager.getTasks());
+        }
+        catch (Exception e)
+        {
+            System.out.println("Warning: could not save tasks.");
+        }
+    }
+
 }
