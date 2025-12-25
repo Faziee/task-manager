@@ -26,7 +26,12 @@ public class TaskRepository
                 if (parts.length != 2) continue;
 
                 Task task = new Task(parts[0]);
-                if (Boolean.parseBoolean(parts[1])) task.markCompleted();
+
+                if (parts[1].equalsIgnoreCase("completed"))
+                {
+                    task.markCompleted();
+                }
+
                 tasks.add(task);
             }
         }
@@ -39,7 +44,8 @@ public class TaskRepository
         {
             for (Task task : tasks)
             {
-                writer.write(task.getTitle() + "|" + task.isCompleted());
+                String status = task.isCompleted() ? "completed" : "pending";
+                writer.write(task.getTitle() + "|" + status);
                 writer.newLine();
             }
         }
