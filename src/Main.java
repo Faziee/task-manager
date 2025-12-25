@@ -3,7 +3,7 @@ import java.util.Scanner;
 
 public class Main {
 
-    static ArrayList<String> tasks = new ArrayList<>();
+    static ArrayList<Task> tasks = new ArrayList<>();
     static Scanner scanner = new Scanner(System.in);
 
     public static void main(String[] args) {
@@ -31,8 +31,8 @@ public class Main {
 
     static void addTask() {
         System.out.print("Enter task: ");
-        String task = scanner.nextLine();
-        tasks.add(task);
+        String title = scanner.nextLine();
+        tasks.add(new Task(title));
         System.out.println("Task added.");
     }
 
