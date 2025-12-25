@@ -1,15 +1,25 @@
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main
 {
 
-    static ArrayList<Task> tasks = new ArrayList<>();
-    static Scanner scanner = new Scanner(System.in);
+    private static final Scanner scanner = new Scanner(System.in);
+    private static final TaskManager taskManager = new TaskManager();
+    private static final TaskRepository repository = new TaskRepository("tasks.txt");
 
     public static void main(String[] args)
     {
         System.out.println("Welcome to your Personal Task Manager!");
+
+        try
+        {
+            taskManager.setTasks(repository.load());
+        }
+        catch (Exception e)
+        {
+            System.out.println("Could not load tasks file (starting fresh).");
+        }
 
         while (true)
         {
@@ -31,19 +41,21 @@ public class Main
         }
     }
 
-    static void showMenu()
+    // ---------- UI ----------
+
+    private static void showMenu()
     {
         System.out.println();
-        System.out.println("============================");
+        System.out.println("================================");
         System.out.println(" Personal Task Manager");
-        System.out.println(" Tasks: " + tasks.size() + "\n");
+        System.out.println(" Tasks: " + taskManager.size() + "\n");
         System.out.println("1) Add task");
         System.out.println("2) List tasks");
         System.out.println("3) Mark task as done");
         System.out.println("4) Exit");
     }
 
-    static void addTask()
+    private static void addTask()
     {
         System.out.print("Enter task title: ");
         String title = scanner.nextLine().trim();
@@ -55,23 +67,22 @@ public class Main
             return;
         }
 
-        tasks.add(new Task(title));
+        taskManager.addTask(title);
         System.out.println("Task added!");
         pause();
     }
 
-    static void listTasks()
+    private static void listTasks()
     {
-        System.out.println();
-
-        if (tasks.isEmpty())
+        if (taskManager.isEmpty())
         {
             System.out.println("No tasks yet. Add one with option 1.");
             pause();
             return;
         }
 
-        System.out.println("Your tasks:");
+        System.out.println("\nYour tasks:");
+        List<Task> tasks = taskManager.getTasks();
         for (int i = 0; i < tasks.size(); i++)
         {
             System.out.printf("%2d) %s%n", (i + 1), tasks.get(i));
@@ -79,17 +90,17 @@ public class Main
         pause();
     }
 
-    static void markTaskAsDone()
+    private static void markTaskAsDone()
     {
-        if (tasks.isEmpty())
+        if (taskManager.isEmpty())
         {
             System.out.println("No tasks to mark.");
             pause();
             return;
         }
 
-        System.out.println();
-        System.out.println("Your tasks:");
+        System.out.println("\nYour tasks:");
+        List<Task> tasks = taskManager.getTasks();
         for (int i = 0; i < tasks.size(); i++)
         {
             System.out.printf("%2d) %s%n", (i + 1), tasks.get(i));
@@ -97,50 +108,51 @@ public class Main
 
         int index = readInt("Enter task number to mark as done: ");
 
-        if (index < 1 || index > tasks.size())
+        if (!taskManager.markTaskDone(index))
         {
             System.out.println("Invalid task number.");
-            pause();
-            return;
         }
-
-        Task task = tasks.get(index - 1);
-        if (task.isCompleted())
+        else
         {
-            System.out.println("That task is already completed.");
-        } else
-        {
-            task.markCompleted();
-            System.out.println("Task marked as done!!");
+            System.out.println("Task marked as done!");
         }
         pause();
     }
 
-    static void exitApp()
+    private static void exitApp()
     {
         System.out.print("Are you sure you want to exit? (y/n): ");
         String input = scanner.nextLine().trim().toLowerCase();
 
         if (input.equals("y") || input.equals("yes"))
         {
+            try
+            {
+                repository.save(taskManager.getTasks());
+            }
+            catch (Exception e)
+            {
+                System.out.println("Could not save tasks file.");
+            }
             System.out.println("Goodbye!");
             System.exit(0);
-        } else
+        }
+        else
         {
             System.out.println("Continuing...");
             pause();
         }
     }
 
-    // --- helpers ---
+    // ---------- Helpers ----------
 
-    static void pause()
+    private static void pause()
     {
         System.out.print("\nPress Enter to continue...");
         scanner.nextLine();
     }
 
-    static int readInt(String prompt)
+    private static int readInt(String prompt)
     {
         while (true)
         {
@@ -149,7 +161,8 @@ public class Main
             try
             {
                 return Integer.parseInt(line);
-            } catch (NumberFormatException e)
+            }
+            catch (NumberFormatException e)
             {
                 System.out.println("Please enter a number.");
             }
