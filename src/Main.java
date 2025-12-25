@@ -9,13 +9,12 @@ public class Main
 
     public static void main(String[] args)
     {
-        System.out.println("\n Welcome to your Personal Task Manager");
+        System.out.println("Welcome to your Personal Task Manager!");
 
         while (true)
         {
             showMenu();
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice = readInt("Choose (1-4): ");
 
             switch (choice)
             {
@@ -23,41 +22,61 @@ public class Main
                 case 2 -> listTasks();
                 case 3 -> markTaskAsDone();
                 case 4 -> exitApp();
-                default -> System.out.println("Invalid option.");
+                default ->
+                {
+                    System.out.println("Invalid option. Please choose 1-4.");
+                    pause();
+                }
             }
         }
     }
 
     static void showMenu()
     {
-        System.out.println("\n === Personal Task Manager ===");
-        System.out.println("1. Add task");
-        System.out.println("2. List tasks");
-        System.out.println("3. Mark Task as done");
-        System.out.println("4. Exit");
-        System.out.print("Choose an option (1-4): ");
+        System.out.println();
+        System.out.println("============================");
+        System.out.println(" Personal Task Manager");
+        System.out.println(" Tasks: " + tasks.size() + "\n");
+        System.out.println("1) Add task");
+        System.out.println("2) List tasks");
+        System.out.println("3) Mark task as done");
+        System.out.println("4) Exit");
     }
 
     static void addTask()
     {
-        System.out.print("Enter task: ");
-        String title = scanner.nextLine();
+        System.out.print("Enter task title: ");
+        String title = scanner.nextLine().trim();
+
+        if (title.isEmpty())
+        {
+            System.out.println("Task title can't be empty.");
+            pause();
+            return;
+        }
+
         tasks.add(new Task(title));
-        System.out.println("Task added.");
+        System.out.println("Task added!");
+        pause();
     }
 
     static void listTasks()
     {
+        System.out.println();
+
         if (tasks.isEmpty())
         {
-            System.out.println("No tasks yet.");
+            System.out.println("No tasks yet. Add one with option 1.");
+            pause();
             return;
         }
 
+        System.out.println("Your tasks:");
         for (int i = 0; i < tasks.size(); i++)
         {
-            System.out.println((i + 1) + ". " + tasks.get(i));
+            System.out.printf("%2d) %s%n", (i + 1), tasks.get(i));
         }
+        pause();
     }
 
     static void markTaskAsDone()
@@ -65,28 +84,75 @@ public class Main
         if (tasks.isEmpty())
         {
             System.out.println("No tasks to mark.");
+            pause();
             return;
         }
 
-        listTasks();
-        System.out.println("Enter task number to mark as done: ");
+        System.out.println();
+        System.out.println("Your tasks:");
+        for (int i = 0; i < tasks.size(); i++)
+        {
+            System.out.printf("%2d) %s%n", (i + 1), tasks.get(i));
+        }
 
-        int index = scanner.nextInt();
-        scanner.nextLine();
+        int index = readInt("Enter task number to mark as done: ");
 
         if (index < 1 || index > tasks.size())
         {
-            System.out.println("Invalid task number :(");
+            System.out.println("Invalid task number.");
+            pause();
             return;
         }
 
-        tasks.get(index - 1).markCompleted();
-        System.out.println("Task marked as done!!");
+        Task task = tasks.get(index - 1);
+        if (task.isCompleted())
+        {
+            System.out.println("That task is already completed.");
+        } else
+        {
+            task.markCompleted();
+            System.out.println("Task marked as done!!");
+        }
+        pause();
     }
 
     static void exitApp()
     {
-        System.out.println("Goodbye!");
-        System.exit(0);
+        System.out.print("Are you sure you want to exit? (y/n): ");
+        String input = scanner.nextLine().trim().toLowerCase();
+
+        if (input.equals("y") || input.equals("yes"))
+        {
+            System.out.println("Goodbye!");
+            System.exit(0);
+        } else
+        {
+            System.out.println("Continuing...");
+            pause();
+        }
+    }
+
+    // --- helpers ---
+
+    static void pause()
+    {
+        System.out.print("\nPress Enter to continue...");
+        scanner.nextLine();
+    }
+
+    static int readInt(String prompt)
+    {
+        while (true)
+        {
+            System.out.print(prompt);
+            String line = scanner.nextLine().trim();
+            try
+            {
+                return Integer.parseInt(line);
+            } catch (NumberFormatException e)
+            {
+                System.out.println("Please enter a number.");
+            }
+        }
     }
 }
