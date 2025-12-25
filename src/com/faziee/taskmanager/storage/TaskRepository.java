@@ -1,3 +1,7 @@
+package com.faziee.taskmanager.storage;
+
+import com.faziee.taskmanager.core.Task;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;

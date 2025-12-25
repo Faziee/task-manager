@@ -1,3 +1,8 @@
+package com.faziee.taskmanager.app;
+import com.faziee.taskmanager.core.Task;
+import com.faziee.taskmanager.core.TaskManager;
+import com.faziee.taskmanager.storage.TaskRepository;
+
 import java.util.List;
 import java.util.Scanner;
 
@@ -10,7 +15,7 @@ public class Main
 
     public static void main(String[] args)
     {
-        System.out.println("Welcome to your Personal Task Manager!");
+        System.out.println("Welcome to your Personal com.faziee.taskmanager.core.Task Manager!");
 
         try
         {
@@ -49,7 +54,7 @@ public class Main
     {
         System.out.println();
         System.out.println("================================");
-        System.out.println(" Personal Task Manager");
+        System.out.println(" Personal com.faziee.taskmanager.core.Task Manager");
         System.out.println(" Tasks: " + taskManager.size() + "\n");
         System.out.println("1) Add task");
         System.out.println("2) List tasks");
@@ -64,14 +69,14 @@ public class Main
 
         if (title.isEmpty())
         {
-            System.out.println("Task title can't be empty.");
+            System.out.println("com.faziee.taskmanager.core.Task title can't be empty.");
             pause();
             return;
         }
 
         taskManager.addTask(title);
         saveSafely();
-        System.out.println("Task added!");
+        System.out.println("com.faziee.taskmanager.core.Task added!");
         pause();
     }
 
@@ -117,7 +122,7 @@ public class Main
         }
         else
         {
-            System.out.println("Task marked as done!");
+            System.out.println("com.faziee.taskmanager.core.Task marked as done!");
             saveSafely();
         }
         pause();

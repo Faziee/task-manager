@@ -1,3 +1,5 @@
+package com.faziee.taskmanager.core;
+
 public class Task
 {
     private String title;
