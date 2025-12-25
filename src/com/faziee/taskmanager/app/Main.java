@@ -2,7 +2,9 @@ package com.faziee.taskmanager.app;
 import com.faziee.taskmanager.core.Task;
 import com.faziee.taskmanager.core.TaskManager;
 import com.faziee.taskmanager.storage.TaskRepository;
+import com.faziee.taskmanager.ui.TaskManagerApp;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Scanner;
 
@@ -25,6 +27,11 @@ public class Main
         {
             System.out.println("Could not load tasks file (starting fresh).");
         }
+
+        SwingUtilities.invokeLater(() -> {
+            TaskManagerApp app = new TaskManagerApp(taskManager, repository);
+            app.setVisible(true);
+        });
 
         Runtime.getRuntime().addShutdownHook(new Thread(Main::saveSafely));
 
