@@ -2,6 +2,7 @@ package com.faziee.taskmanager.core;
 
 import com.faziee.taskmanager.core.Task;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -20,9 +21,9 @@ public class TaskManager
         this.tasks.addAll(loaded);
     }
 
-    public void addTask(String title)
+    public void addTask(String title, Priority priority, LocalDate dueDate, String notes)
     {
-        this.tasks.add(new Task(title));
+        this.tasks.add(new Task(title, priority, dueDate, notes));
     }
 
     public boolean markTaskDone(int oneBasedIndex)

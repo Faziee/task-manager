@@ -1,5 +1,6 @@
 package com.faziee.taskmanager.ui;
 
+import com.faziee.taskmanager.core.Priority;
 import com.faziee.taskmanager.core.Task;
 import com.faziee.taskmanager.core.TaskManager;
 import com.faziee.taskmanager.storage.TaskRepository;
@@ -8,6 +9,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
 public class TaskManagerApp extends JFrame
 {
@@ -86,28 +89,62 @@ public class TaskManagerApp extends JFrame
         setTitle("Personal Task Manager (" + taskManager.size() + " tasks)");
     }
 
-    private void addTaskPopup()
-    {
-        String title = JOptionPane.showInputDialog(
+    private void addTaskPopup() {
+        JTextField titleField = new JTextField(20);
+        JComboBox<Priority> priorityBox = new JComboBox<>(Priority.values());
+        JTextField dueDateField = new JTextField(10);
+        JTextArea notesArea = new JTextArea(4, 20);
+
+        JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
+        panel.add(new JLabel("Title:"));
+        panel.add(titleField);
+        panel.add(new JLabel("Priority:"));
+        panel.add(priorityBox);
+        panel.add(new JLabel("Due date (yyyy-mm-dd, optional):"));
+        panel.add(dueDateField);
+        panel.add(new JLabel("Notes (optional):"));
+        panel.add(new JScrollPane(notesArea));
+
+        int result = JOptionPane.showConfirmDialog(
                 this,
-                "Enter task title:",
+                panel,
                 "Add Task",
+                JOptionPane.OK_CANCEL_OPTION,
                 JOptionPane.PLAIN_MESSAGE
         );
 
-        if (title == null) return; // cancelled
-        title = title.trim();
+        if (result != JOptionPane.OK_OPTION) return;
 
-        if (title.isEmpty())
-        {
-            JOptionPane.showMessageDialog(this, "Task title can't be empty.");
+        String title = titleField.getText().trim();
+        if (title.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Title is required.");
             return;
         }
 
-        taskManager.addTask(title);
+        Priority priority = (Priority) priorityBox.getSelectedItem();
+
+        LocalDate dueDate = null;
+        String dueDateText = dueDateField.getText().trim();
+        if (!dueDateText.isEmpty()) {
+            try {
+                dueDate = LocalDate.parse(dueDateText);
+            } catch (DateTimeParseException e) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Invalid date format. Use yyyy-mm-dd."
+                );
+                return;
+            }
+        }
+
+        String notes = notesArea.getText().trim();
+        if (notes.isEmpty()) notes = null;
+
+        taskManager.addTask(title, priority, dueDate, notes);
         saveSafely();
         refreshList();
     }
+
 
     private void markDone()
     {
