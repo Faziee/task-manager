@@ -21,6 +21,8 @@ public class Main
             System.out.println("Could not load tasks file (starting fresh).");
         }
 
+        Runtime.getRuntime().addShutdownHook(new Thread(Main::saveSafely));
+
         while (true)
         {
             showMenu();
@@ -96,7 +98,6 @@ public class Main
         if (taskManager.isEmpty())
         {
             System.out.println("No tasks to mark.");
-            saveSafely();
             pause();
             return;
         }
@@ -117,6 +118,7 @@ public class Main
         else
         {
             System.out.println("Task marked as done!");
+            saveSafely();
         }
         pause();
     }
@@ -128,14 +130,6 @@ public class Main
 
         if (input.equals("y") || input.equals("yes"))
         {
-            try
-            {
-                repository.save(taskManager.getTasks());
-            }
-            catch (Exception e)
-            {
-                System.out.println("Could not save tasks file.");
-            }
             System.out.println("Goodbye!");
             System.exit(0);
         }
