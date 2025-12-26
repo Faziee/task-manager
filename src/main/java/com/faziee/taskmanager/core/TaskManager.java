@@ -1,8 +1,5 @@
 package com.faziee.taskmanager.core;
 
-import com.faziee.taskmanager.core.Task;
-
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,9 +18,19 @@ public class TaskManager
         this.tasks.addAll(loaded);
     }
 
-    public void addTask(String title, Priority priority, LocalDate dueDate, String notes)
+    public void addTask(Task task)
     {
-        this.tasks.add(new Task(title, priority, dueDate, notes));
+        this.tasks.add(task);
+    }
+
+    public void updateTask(int indexZeroBased, Task updated)
+    {
+        this.tasks.set(indexZeroBased, updated);
+    }
+
+    public void deleteTask(int indexZeroBased)
+    {
+        this.tasks.remove(indexZeroBased);
     }
 
     public boolean markTaskDone(int oneBasedIndex)

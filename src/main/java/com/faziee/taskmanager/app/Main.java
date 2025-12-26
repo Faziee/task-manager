@@ -13,6 +13,11 @@ public class Main
     {
         try
         {
+            System.setProperty("flatlaf.uiScale", "1.0");
+            System.setProperty("flatlaf.useWindowDecorations", "true");
+            System.setProperty("flatlaf.menuBarEmbedded", "true");
+            System.setProperty("flatlaf.roundedCorners", "true");
+
             UIManager.setLookAndFeel(new FlatLightLaf());
         }
         catch (Exception e)
