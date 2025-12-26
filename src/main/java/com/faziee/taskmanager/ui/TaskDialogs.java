@@ -6,7 +6,8 @@ import com.faziee.taskmanager.core.Task;
 import javax.swing.*;
 import java.awt.*;
 import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
+import java.time.ZoneId;
+import java.util.Date;
 
 public class TaskDialogs
 {
@@ -17,22 +18,44 @@ public class TaskDialogs
         JComboBox<Priority> priorityBox = new JComboBox<>(Priority.values());
         priorityBox.setSelectedItem(existing == null ? Priority.MEDIUM : existing.getPriority());
 
-        JTextField dueDateField = new JTextField(
-                existing == null || existing.getDueDate() == null ? "" : existing.getDueDate().toString(),
-                10
-        );
+        // --- Due date picker (optional) ---
+        JCheckBox hasDueDate = new JCheckBox("Set due date");
+        hasDueDate.setSelected(existing != null && existing.getDueDate() != null);
 
-        JTextArea notesArea = new JTextArea(existing == null || existing.getNotes() == null ? "" : existing.getNotes(), 5, 20);
+        SpinnerDateModel dateModel = new SpinnerDateModel();
+        JSpinner dueDateSpinner = new JSpinner(dateModel);
+        dueDateSpinner.setEditor(new JSpinner.DateEditor(dueDateSpinner, "yyyy-MM-dd"));
+
+        // Set initial value if editing
+        if (existing != null && existing.getDueDate() != null)
+        {
+            Date d = Date.from(existing.getDueDate()
+                    .atStartOfDay(ZoneId.systemDefault())
+                    .toInstant());
+            dueDateSpinner.setValue(d);
+        }
+
+        dueDateSpinner.setEnabled(hasDueDate.isSelected());
+        hasDueDate.addActionListener(e -> dueDateSpinner.setEnabled(hasDueDate.isSelected()));
+
+        JTextArea notesArea = new JTextArea(
+                existing == null || existing.getNotes() == null ? "" : existing.getNotes(),
+                5,
+                20
+        );
         notesArea.setLineWrap(true);
         notesArea.setWrapStyleWord(true);
 
         JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
         panel.add(new JLabel("Title:"));
         panel.add(titleField);
+
         panel.add(new JLabel("Priority:"));
         panel.add(priorityBox);
-        panel.add(new JLabel("Due date (yyyy-mm-dd, optional):"));
-        panel.add(dueDateField);
+
+        panel.add(hasDueDate);
+        panel.add(dueDateSpinner);
+
         panel.add(new JLabel("Notes:"));
         panel.add(new JScrollPane(notesArea));
 
@@ -56,18 +79,10 @@ public class TaskDialogs
         Priority p = (Priority) priorityBox.getSelectedItem();
 
         LocalDate due = null;
-        String dueText = dueDateField.getText().trim();
-        if (!dueText.isEmpty())
+        if (hasDueDate.isSelected())
         {
-            try
-            {
-                due = LocalDate.parse(dueText);
-            }
-            catch (DateTimeParseException ex)
-            {
-                JOptionPane.showMessageDialog(parent, "Invalid date format. Use yyyy-mm-dd.");
-                return null;
-            }
+            Date selected = (Date) dueDateSpinner.getValue();
+            due = selected.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
         }
 
         String notes = notesArea.getText().trim();
@@ -75,6 +90,7 @@ public class TaskDialogs
 
         Task newTask = new Task(t, p, due, notes);
 
+        // preserve completion status when editing
         if (existing != null && existing.isCompleted())
         {
             newTask.markCompleted();
