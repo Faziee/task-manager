@@ -14,9 +14,13 @@ import java.time.format.DateTimeParseException;
 
 public class TaskManagerApp extends JFrame
 {
-
     private final TaskManager taskManager;
     private final TaskRepository repository;
+
+    private final JLabel titleValue = new JLabel("-");
+    private final JLabel priorityValue = new JLabel("-");
+    private final JLabel dueDateValue = new JLabel("-");
+    private final JTextArea notesValue = new JTextArea();
 
     private final DefaultListModel<Task> listModel = new DefaultListModel<>();
     private final JList<Task> taskList = new JList<>(listModel);
@@ -33,6 +37,29 @@ public class TaskManagerApp extends JFrame
 
         buildUi();
         refreshList();
+
+        taskList.addListSelectionListener(e ->
+        {
+            if (!e.getValueIsAdjusting())
+            {
+                updateDetailsFromSelection();
+            }
+        });
+
+        taskList.addMouseListener(new java.awt.event.MouseAdapter()
+        {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e)
+            {
+                int index = taskList.locationToIndex(e.getPoint());
+
+                if (index >= 0)
+                {
+                    taskList.setSelectedIndex(index);
+                    updateDetailsFromSelection();
+                }
+            }
+        });
 
         addWindowListener(new WindowAdapter()
         {
@@ -54,7 +81,15 @@ public class TaskManagerApp extends JFrame
         add(header, BorderLayout.NORTH);
 
         taskList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        add(new JScrollPane(taskList), BorderLayout.CENTER);
+        JPanel detailsPanel = buildDetailsPanel();
+
+        JSplitPane splitPane = new JSplitPane(
+                JSplitPane.HORIZONTAL_SPLIT,
+                new JScrollPane(taskList),
+                detailsPanel
+        );
+        splitPane.setResizeWeight(0.45);
+        add(splitPane, BorderLayout.CENTER);
 
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttons.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
@@ -87,6 +122,12 @@ public class TaskManagerApp extends JFrame
         }
 
         setTitle("Personal Task Manager (" + taskManager.size() + " tasks)");
+
+        if (!listModel.isEmpty() && taskList.getSelectedIndex() == -1)
+        {
+            taskList.setSelectedIndex(0);
+        }
+        updateDetailsFromSelection();
     }
 
     private void addTaskPopup() {
@@ -143,8 +184,59 @@ public class TaskManagerApp extends JFrame
         taskManager.addTask(title, priority, dueDate, notes);
         saveSafely();
         refreshList();
+
+        taskList.setSelectedIndex(listModel.size() - 1);
+        updateDetailsFromSelection();
     }
 
+    private JPanel buildDetailsPanel()
+    {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        JPanel grid = new JPanel(new GridLayout(0, 1, 6, 6));
+
+        grid.add(new JLabel("Title:"));
+        grid.add(titleValue);
+
+        grid.add(new JLabel("Priority:"));
+        grid.add(priorityValue);
+
+        grid.add(new JLabel("Due date:"));
+        grid.add(dueDateValue);
+
+        grid.add(new JLabel("Notes:"));
+        notesValue.setLineWrap(true);
+        notesValue.setWrapStyleWord(true);
+        notesValue.setEditable(false);
+
+        panel.add(grid, BorderLayout.NORTH);
+        panel.add(new JScrollPane(notesValue), BorderLayout.CENTER);
+
+        JLabel hint = new JLabel("Tip: double-click a task to edit");
+        panel.add(hint, BorderLayout.SOUTH);
+
+        return panel;
+    }
+
+    private void updateDetailsFromSelection()
+    {
+        Task selected = taskList.getSelectedValue();
+
+        if (selected == null)
+        {
+            titleValue.setText("-");
+            priorityValue.setText("-");
+            dueDateValue.setText("-");
+            notesValue.setText("");
+            return;
+        }
+
+        titleValue.setText(selected.getTitle());
+        priorityValue.setText(String.valueOf(selected.getPriority()));
+        dueDateValue.setText(selected.getDueDate() == null ? "-" : selected.getDueDate().toString());
+        notesValue.setText(selected.getNotes() == null ? "" : selected.getNotes());
+    }
 
     private void markDone()
     {
