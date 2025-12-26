@@ -2,6 +2,8 @@ package com.faziee.taskmanager.app;
 import com.faziee.taskmanager.core.TaskManager;
 import com.faziee.taskmanager.storage.TaskRepository;
 import com.faziee.taskmanager.ui.TaskManagerApp;
+import com.formdev.flatlaf.FlatLightLaf;
+
 
 import javax.swing.*;
 
@@ -9,6 +11,15 @@ public class Main
 {
     public static void main(String[] args)
     {
+        try
+        {
+            UIManager.setLookAndFeel(new FlatLightLaf());
+        }
+        catch (Exception e)
+        {
+            System.err.println("Failed to initialize FlatLaf");
+        }
+
         TaskManager taskManager = new TaskManager();
         TaskRepository repository = new TaskRepository("tasks.json");
 
