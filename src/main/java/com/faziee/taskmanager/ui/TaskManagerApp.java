@@ -1,6 +1,5 @@
 package com.faziee.taskmanager.ui;
 
-import com.faziee.taskmanager.core.Priority;
 import com.faziee.taskmanager.core.Task;
 import com.faziee.taskmanager.core.TaskManager;
 import com.faziee.taskmanager.storage.TaskRepository;
@@ -9,8 +8,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.time.LocalDate;
-import java.time.format.DateTimeParseException;
 
 public class TaskManagerApp extends JFrame
 {
@@ -59,6 +56,15 @@ public class TaskManagerApp extends JFrame
                     updateDetailsFromSelection();
                 }
             }
+
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e)
+            {
+                if (e.getClickCount() == 2)
+                {
+                    editSelectedTask();
+                }
+            }
         });
 
         addWindowListener(new WindowAdapter()
@@ -95,16 +101,19 @@ public class TaskManagerApp extends JFrame
         buttons.setBorder(BorderFactory.createEmptyBorder(0, 10, 10, 10));
 
         JButton addBtn = new JButton("Add");
+        JButton editBtn = new JButton("Edit");
         JButton doneBtn = new JButton("Mark Done");
         JButton deleteBtn = new JButton("Delete");
         JButton exitBtn = new JButton("Exit");
 
         addBtn.addActionListener(e -> addTaskPopup());
+        editBtn.addActionListener(e -> editSelectedTask());
         doneBtn.addActionListener(e -> markDone());
         deleteBtn.addActionListener(e -> deleteSelected());
         exitBtn.addActionListener(e -> exitSafely());
 
         buttons.add(addBtn);
+        buttons.add(editBtn);
         buttons.add(doneBtn);
         buttons.add(deleteBtn);
         buttons.add(exitBtn);
@@ -127,65 +136,41 @@ public class TaskManagerApp extends JFrame
         {
             taskList.setSelectedIndex(0);
         }
+
         updateDetailsFromSelection();
     }
 
-    private void addTaskPopup() {
-        JTextField titleField = new JTextField(20);
-        JComboBox<Priority> priorityBox = new JComboBox<>(Priority.values());
-        JTextField dueDateField = new JTextField(10);
-        JTextArea notesArea = new JTextArea(4, 20);
+    private void addTaskPopup()
+    {
+        Task created = TaskDialogs.showTaskForm(this, "Add Task", null);
+        if (created == null) return;
 
-        JPanel panel = new JPanel(new GridLayout(0, 1, 5, 5));
-        panel.add(new JLabel("Title:"));
-        panel.add(titleField);
-        panel.add(new JLabel("Priority:"));
-        panel.add(priorityBox);
-        panel.add(new JLabel("Due date (yyyy-mm-dd, optional):"));
-        panel.add(dueDateField);
-        panel.add(new JLabel("Notes (optional):"));
-        panel.add(new JScrollPane(notesArea));
-
-        int result = JOptionPane.showConfirmDialog(
-                this,
-                panel,
-                "Add Task",
-                JOptionPane.OK_CANCEL_OPTION,
-                JOptionPane.PLAIN_MESSAGE
-        );
-
-        if (result != JOptionPane.OK_OPTION) return;
-
-        String title = titleField.getText().trim();
-        if (title.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Title is required.");
-            return;
-        }
-
-        Priority priority = (Priority) priorityBox.getSelectedItem();
-
-        LocalDate dueDate = null;
-        String dueDateText = dueDateField.getText().trim();
-        if (!dueDateText.isEmpty()) {
-            try {
-                dueDate = LocalDate.parse(dueDateText);
-            } catch (DateTimeParseException e) {
-                JOptionPane.showMessageDialog(
-                        this,
-                        "Invalid date format. Use yyyy-mm-dd."
-                );
-                return;
-            }
-        }
-
-        String notes = notesArea.getText().trim();
-        if (notes.isEmpty()) notes = null;
-
-        taskManager.addTask(title, priority, dueDate, notes);
+        taskManager.getTasks().add(created);
         saveSafely();
         refreshList();
 
         taskList.setSelectedIndex(listModel.size() - 1);
+        updateDetailsFromSelection();
+    }
+
+    private void editSelectedTask()
+    {
+        int idx = taskList.getSelectedIndex();
+        if (idx < 0)
+        {
+            JOptionPane.showMessageDialog(this, "Select a task first.");
+            return;
+        }
+
+        Task existing = taskManager.getTasks().get(idx);
+        Task edited = TaskDialogs.showTaskForm(this, "Edit Task", existing);
+        if (edited == null) return;
+
+        taskManager.getTasks().set(idx, edited);
+        saveSafely();
+        refreshList();
+
+        taskList.setSelectedIndex(idx);
         updateDetailsFromSelection();
     }
 
