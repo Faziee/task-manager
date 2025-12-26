@@ -27,3 +27,10 @@ replay_pid*
 
 # Runtime data
 tasks.txt
+
+# Gradle
+.gradle/
+build/
+
+# IntelliJ output
+out/
