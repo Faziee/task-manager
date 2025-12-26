@@ -1,18 +1,29 @@
 package com.faziee.taskmanager.storage;
 
 import com.faziee.taskmanager.core.Task;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.reflect.TypeToken;
 
 import java.io.*;
+import java.lang.reflect.Type;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
 public class TaskRepository
 {
+
     private final String fileName;
+    private final Gson gson;
 
     public TaskRepository(String fileName)
     {
         this.fileName = fileName;
+        this.gson = new GsonBuilder()
+                .setPrettyPrinting()
+                .registerTypeAdapter(LocalDate.class, new LocalDateAdapter())
+                .create();
     }
 
     public List<Task> load() throws IOException
@@ -20,38 +31,21 @@ public class TaskRepository
         File file = new File(fileName);
         if (!file.exists()) return new ArrayList<>();
 
-        List<Task> tasks = new ArrayList<>();
-        try (BufferedReader reader = new BufferedReader(new FileReader(file)))
+        try (Reader reader = new FileReader(file))
         {
-            String line;
-            while ((line = reader.readLine()) != null)
+            Type listType = new TypeToken<List<Task>>()
             {
-                String[] parts = line.split("\\|", 2);
-                if (parts.length != 2) continue;
-
-                Task task = new Task(parts[0]);
-
-                if (parts[1].equalsIgnoreCase("completed"))
-                {
-                    task.markCompleted();
-                }
-
-                tasks.add(task);
-            }
+            }.getType();
+            List<Task> tasks = gson.fromJson(reader, listType);
+            return tasks == null ? new ArrayList<>() : tasks;
         }
-        return tasks;
     }
 
     public void save(List<Task> tasks) throws IOException
     {
-        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileName)))
+        try (Writer writer = new FileWriter(fileName))
         {
-            for (Task task : tasks)
-            {
-                String status = task.isCompleted() ? "completed" : "pending";
-                writer.write(task.getTitle() + "|" + status);
-                writer.newLine();
-            }
+            gson.toJson(tasks, writer);
         }
     }
 }

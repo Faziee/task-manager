@@ -5,11 +5,16 @@ import java.util.Objects;
 
 public class Task
 {
-    private final String title;
-    private final Priority priority;
-    private final LocalDate dueDate;
-    private final String notes;
+    private String title;
+    private Priority priority;
+    private LocalDate dueDate;
+    private String notes;
     private boolean completed;
+
+    public Task()
+    {
+
+    }
 
     public Task(String title, Priority priority, LocalDate dueDate, String notes)
     {
@@ -21,10 +26,10 @@ public class Task
     }
 
     // Backwards-compat constructor (for old code for storage), remove later
-    public Task(String title)
-    {
-        this(title, Priority.MEDIUM, null, null);
-    }
+//    public Task(String title)
+//    {
+//        this(title, Priority.MEDIUM, null, null);
+//    }
 
     public String getTitle()
     {

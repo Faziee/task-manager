@@ -5,18 +5,24 @@ import com.faziee.taskmanager.ui.TaskManagerApp;
 
 import javax.swing.*;
 
-public class Main {
-    public static void main(String[] args) {
+public class Main
+{
+    public static void main(String[] args)
+    {
         TaskManager taskManager = new TaskManager();
-        TaskRepository repository = new TaskRepository("tasks.txt");
+        TaskRepository repository = new TaskRepository("tasks.json");
 
-        try {
+        try
+        {
             taskManager.setTasks(repository.load());
-        } catch (Exception e) {
+        }
+        catch (Exception e)
+        {
             System.out.println("Could not load tasks file (starting fresh).");
         }
 
-        SwingUtilities.invokeLater(() -> {
+        SwingUtilities.invokeLater(() ->
+        {
             TaskManagerApp app = new TaskManagerApp(taskManager, repository);
             app.setVisible(true);
         });
