@@ -34,3 +34,6 @@ build/
 
 # IntelliJ output
 out/
+
+# Allow Gradle wrapper jar (required for ./gradlew)
+!gradle/wrapper/gradle-wrapper.jar
