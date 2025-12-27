@@ -17,6 +17,7 @@ public class Main
             System.setProperty("flatlaf.useWindowDecorations", "true");
             System.setProperty("flatlaf.menuBarEmbedded", "true");
             System.setProperty("flatlaf.roundedCorners", "true");
+            UIManager.put("defaultFont", UIManager.getFont("Label.font").deriveFont(15f));
 
             UIManager.setLookAndFeel(new FlatLightLaf());
         }

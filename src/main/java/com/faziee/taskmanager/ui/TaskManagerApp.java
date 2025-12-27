@@ -5,7 +5,6 @@ import com.faziee.taskmanager.core.TaskManager;
 import com.faziee.taskmanager.storage.TaskRepository;
 
 import javax.swing.*;
-import javax.swing.border.CompoundBorder;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import java.awt.*;
@@ -61,36 +60,36 @@ public class TaskManagerApp extends JFrame
 
     private void buildUi()
     {
-        // Root padding
-        JPanel root = new JPanel(new BorderLayout(12, 12));
-        root.setBorder(new EmptyBorder(14, 14, 14, 14));
+        JPanel root = new JPanel(new BorderLayout(14, 14));
+        root.setBorder(new EmptyBorder(16, 16, 16, 16));
+        root.setBackground(new Color(245, 246, 248));
         setContentPane(root);
 
-        // Header
         JLabel header = new JLabel("Personal Task Manager");
         header.setFont(header.getFont().deriveFont(Font.BOLD, 22f));
         root.add(header, BorderLayout.NORTH);
 
-        // Task list styling
+        // Task list
         taskList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        taskList.setVisibleRowCount(-1);
-        taskList.setFixedCellHeight(44);
+        taskList.setFixedCellHeight(56);
         taskList.setCellRenderer(new TaskListRenderer());
+
         JScrollPane listScroll = new JScrollPane(taskList);
-        listScroll.setBorder(cardBorder());
-        listScroll.getViewport().setBackground(taskList.getBackground());
+        listScroll.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
+        listScroll.getViewport().setBackground(new Color(248, 249, 251));
 
-        // Details card
-        JPanel detailsPanel = buildDetailsPanel();
+        // Details
+        JPanel details = buildDetailsPanel();
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listScroll, detailsPanel);
-        split.setResizeWeight(0.42);
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listScroll, details);
+        split.setResizeWeight(0.4);
         split.setBorder(null);
+
         root.add(split, BorderLayout.CENTER);
 
         // Buttons
         JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        buttons.setBorder(new EmptyBorder(8, 0, 0, 0));
+        buttons.setOpaque(false);
 
         JButton addBtn = new JButton("Add");
         JButton editBtn = new JButton("Edit");
@@ -115,88 +114,76 @@ public class TaskManagerApp extends JFrame
 
     private JPanel buildDetailsPanel()
     {
-        JPanel card = new JPanel(new BorderLayout(10, 10));
-        card.setBorder(cardBorder());
-
-        JPanel content = new JPanel(new GridBagLayout());
-        content.setBorder(new EmptyBorder(12, 12, 12, 12));
+        JPanel panel = new JPanel(new GridBagLayout());
+        panel.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
+        panel.setBackground(new Color(250, 250, 252));
 
         GridBagConstraints c = new GridBagConstraints();
-        c.gridx = 0;
-        c.gridy = 0;
+        c.insets = new Insets(8, 12, 8, 12);
         c.anchor = GridBagConstraints.NORTHWEST;
-        c.insets = new Insets(0, 0, 10, 12);
 
-        JLabel titleLabel = new JLabel("Title");
-        JLabel priorityLabel = new JLabel("Priority");
-        JLabel dueLabel = new JLabel("Due date");
-        JLabel notesLabel = new JLabel("Notes");
-
-        styleKey(titleLabel);
-        styleKey(priorityLabel);
-        styleKey(dueLabel);
-        styleKey(notesLabel);
+        JLabel titleKey = key("Title");
+        JLabel priorityKey = key("Priority");
+        JLabel dueKey = key("Due date");
+        JLabel notesKey = key("Notes");
 
         styleValue(titleValue, 16f, true);
         styleValue(priorityValue, 14f, false);
         styleValue(dueDateValue, 14f, false);
 
-        content.add(titleLabel, c);
+        c.gridx = 0; c.gridy = 0;
+        panel.add(titleKey, c);
         c.gridy++;
-        content.add(priorityLabel, c);
+        panel.add(priorityKey, c);
         c.gridy++;
-        content.add(dueLabel, c);
+        panel.add(dueKey, c);
         c.gridy++;
-        content.add(notesLabel, c);
+        panel.add(notesKey, c);
 
-        c.gridx = 1;
-        c.gridy = 0;
-        c.weightx = 1.0;
+        c.gridx = 1; c.gridy = 0;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.insets = new Insets(0, 0, 10, 0);
+        c.weightx = 1;
 
-        content.add(titleValue, c);
+        panel.add(titleValue, c);
         c.gridy++;
-        content.add(priorityValue, c);
+        panel.add(priorityValue, c);
         c.gridy++;
-        content.add(dueDateValue, c);
+        panel.add(dueDateValue, c);
 
         c.gridy++;
-        c.weighty = 1.0;
+        c.weighty = 1;
         c.fill = GridBagConstraints.BOTH;
 
+        notesValue.setEditable(false);
         notesValue.setLineWrap(true);
         notesValue.setWrapStyleWord(true);
-        notesValue.setEditable(false);
-        notesValue.setBorder(new EmptyBorder(10, 10, 10, 10));
         notesValue.setFont(notesValue.getFont().deriveFont(14f));
+        notesValue.setBorder(new EmptyBorder(10, 10, 10, 10));
 
         JScrollPane notesScroll = new JScrollPane(notesValue);
         notesScroll.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
+        panel.add(notesScroll, c);
 
-        content.add(notesScroll, c);
+        return panel;
+    }
 
-        notesScroll.setPreferredSize(new Dimension(480, 220));
-        notesValue.setBackground(new Color(250, 250, 250));
+    private JLabel key(String text)
+    {
+        JLabel l = new JLabel(text);
+        l.setFont(l.getFont().deriveFont(Font.PLAIN, 12f));
+        l.setForeground(new Color(120, 120, 120));
+        return l;
+    }
 
-
-        card.add(content, BorderLayout.CENTER);
-
-        JLabel hint = new JLabel("Tip: select a task to view details. Use Edit to change it.");
-        hint.setBorder(new EmptyBorder(0, 12, 12, 12));
-        hint.setForeground(new Color(120, 120, 120));
-        card.add(hint, BorderLayout.SOUTH);
-
-        return card;
+    private void styleValue(JLabel label, float size, boolean bold)
+    {
+        label.setFont(label.getFont().deriveFont(bold ? Font.BOLD : Font.PLAIN, size));
     }
 
     private void refreshList()
     {
         listModel.clear();
-        for (Task t : taskManager.getTasks())
-        {
-            listModel.addElement(t);
-        }
+        taskManager.getTasks().forEach(listModel::addElement);
 
         setTitle("Personal Task Manager (" + taskManager.size() + " tasks)");
 
@@ -209,9 +196,8 @@ public class TaskManagerApp extends JFrame
 
     private void updateDetailsFromSelection()
     {
-        Task selected = taskList.getSelectedValue();
-
-        if (selected == null)
+        Task t = taskList.getSelectedValue();
+        if (t == null)
         {
             titleValue.setText("-");
             priorityValue.setText("-");
@@ -220,18 +206,18 @@ public class TaskManagerApp extends JFrame
             return;
         }
 
-        titleValue.setText(selected.getTitle());
-        priorityValue.setText(String.valueOf(selected.getPriority()));
-        dueDateValue.setText(selected.getDueDate() == null ? "-" : DATE_FMT.format(selected.getDueDate()));
-        notesValue.setText(selected.getNotes() == null ? "" : selected.getNotes());
+        titleValue.setText(t.getTitle());
+        priorityValue.setText(t.getPriority().name());
+        dueDateValue.setText(t.getDueDate() == null ? "-" : DATE_FMT.format(t.getDueDate()));
+        notesValue.setText(t.getNotes() == null ? "" : t.getNotes());
     }
 
     private void addTask()
     {
-        Task created = TaskDialogs.showTaskForm(this, "Add Task", null);
-        if (created == null) return;
+        Task t = TaskDialogs.showTaskForm(this, "Add Task", null);
+        if (t == null) return;
 
-        taskManager.addTask(created);
+        taskManager.addTask(t);
         saveSafely();
         refreshList();
         taskList.setSelectedIndex(listModel.size() - 1);
@@ -240,14 +226,9 @@ public class TaskManagerApp extends JFrame
     private void editTask()
     {
         int idx = taskList.getSelectedIndex();
-        if (idx < 0)
-        {
-            JOptionPane.showMessageDialog(this, "Select a task first.");
-            return;
-        }
+        if (idx < 0) return;
 
-        Task existing = listModel.getElementAt(idx);
-        Task updated = TaskDialogs.showTaskForm(this, "Edit Task", existing);
+        Task updated = TaskDialogs.showTaskForm(this, "Edit Task", listModel.get(idx));
         if (updated == null) return;
 
         taskManager.updateTask(idx, updated);
@@ -259,19 +240,9 @@ public class TaskManagerApp extends JFrame
     private void markDone()
     {
         int idx = taskList.getSelectedIndex();
-        if (idx < 0)
-        {
-            JOptionPane.showMessageDialog(this, "Select a task first.");
-            return;
-        }
+        if (idx < 0) return;
 
-        boolean ok = taskManager.markTaskDone(idx + 1);
-        if (!ok)
-        {
-            JOptionPane.showMessageDialog(this, "Could not mark task as done.");
-            return;
-        }
-
+        taskManager.markTaskDone(idx + 1);
         saveSafely();
         refreshList();
         taskList.setSelectedIndex(idx);
@@ -280,124 +251,27 @@ public class TaskManagerApp extends JFrame
     private void deleteSelected()
     {
         int idx = taskList.getSelectedIndex();
-        if (idx < 0)
+        if (idx < 0) return;
+
+        if (JOptionPane.showConfirmDialog(this, "Delete selected task?",
+                "Confirm", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION)
         {
-            JOptionPane.showMessageDialog(this, "Select a task first.");
-            return;
+            taskManager.deleteTask(idx);
+            saveSafely();
+            refreshList();
         }
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Delete selected task?",
-                "Confirm Delete",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm != JOptionPane.YES_OPTION) return;
-
-        taskManager.deleteTask(idx);
-        saveSafely();
-        refreshList();
     }
 
     private void saveSafely()
     {
-        try
-        {
-            repository.save(taskManager.getTasks());
-        }
-        catch (Exception ex)
-        {
-            JOptionPane.showMessageDialog(this, "Warning: could not save tasks.");
-        }
+        try { repository.save(taskManager.getTasks()); }
+        catch (Exception ignored) {}
     }
 
     private void exitSafely()
     {
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Exit the app?",
-                "Confirm Exit",
-                JOptionPane.YES_NO_OPTION
-        );
-
-        if (confirm == JOptionPane.YES_OPTION)
-        {
-            saveSafely();
-            dispose();
-            System.exit(0);
-        }
-    }
-
-    // ---------- Helpers / styling ----------
-
-    private static void styleKey(JLabel label)
-    {
-        label.setForeground(new Color(120, 120, 120));
-        label.setFont(label.getFont().deriveFont(Font.PLAIN, 12f));
-    }
-
-    private static void styleValue(JLabel label, float size, boolean bold)
-    {
-        label.setFont(label.getFont().deriveFont(bold ? Font.BOLD : Font.PLAIN, size));
-    }
-
-    private static CompoundBorder cardBorder()
-    {
-        return BorderFactory.createCompoundBorder(
-                new LineBorder(new Color(220, 220, 220), 1, true),
-                new EmptyBorder(10, 10, 10, 10)
-        );
-    }
-
-    private class TaskListRenderer extends JPanel implements ListCellRenderer<Task>
-    {
-        private final JLabel title = new JLabel();
-        private final JLabel meta = new JLabel();
-
-        TaskListRenderer()
-        {
-            setLayout(new BorderLayout(6, 2));
-            setBorder(new EmptyBorder(8, 10, 8, 10));
-            title.setFont(title.getFont().deriveFont(Font.BOLD, 14f));
-            meta.setFont(meta.getFont().deriveFont(Font.PLAIN, 12f));
-            meta.setForeground(new Color(120, 120, 120));
-            add(title, BorderLayout.NORTH);
-            add(meta, BorderLayout.SOUTH);
-            setOpaque(true);
-        }
-
-        @Override
-        public Component getListCellRendererComponent(JList<? extends Task> list, Task value, int index, boolean isSelected, boolean cellHasFocus)
-        {
-            String t = value.getTitle();
-            title.setText(value.isCompleted() ? "✓ " + t : t);
-
-            String due = value.getDueDate() == null ? "" : (" • due " + DATE_FMT.format(value.getDueDate()));
-            meta.setText(value.getPriority() + due);
-
-            if (value.isCompleted())
-            {
-                title.setForeground(new Color(140, 140, 140));
-            }
-            else
-            {
-                title.setForeground(list.getForeground());
-            }
-
-            if (isSelected)
-            {
-                setBackground(list.getSelectionBackground());
-                title.setForeground(list.getSelectionForeground());
-                meta.setForeground(list.getSelectionForeground());
-            }
-            else
-            {
-                setBackground(list.getBackground());
-                meta.setForeground(new Color(120, 120, 120));
-            }
-
-            return this;
-        }
+        saveSafely();
+        dispose();
+        System.exit(0);
     }
 }
