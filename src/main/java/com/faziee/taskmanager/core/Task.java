@@ -50,6 +50,11 @@ public class Task
         this.completed = true;
     }
 
+    public void markPending()
+    {
+        this.completed = false;
+    }
+
     @Override
     public String toString()
     {

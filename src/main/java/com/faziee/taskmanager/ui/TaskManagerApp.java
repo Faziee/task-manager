@@ -112,18 +112,21 @@ public class TaskManagerApp extends JFrame
         JButton addBtn = modernButton("Add", ButtonStyle.PRIMARY);
         JButton editBtn = modernButton("Edit", ButtonStyle.SECONDARY);
         JButton doneBtn = modernButton("Mark Done", ButtonStyle.SECONDARY);
+        JButton unmarkBtn = modernButton("Mark Pending", ButtonStyle.SECONDARY);
         JButton deleteBtn = modernButton("Delete", ButtonStyle.DANGER);
         JButton exitBtn = modernButton("Exit", ButtonStyle.SECONDARY);
 
         addBtn.addActionListener(e -> addTask());
         editBtn.addActionListener(e -> editTask());
         doneBtn.addActionListener(e -> markDone());
+        unmarkBtn.addActionListener(e -> markPending());
         deleteBtn.addActionListener(e -> deleteSelected());
         exitBtn.addActionListener(e -> exitSafely());
 
         bottom.add(addBtn);
         bottom.add(editBtn);
         bottom.add(doneBtn);
+        bottom.add(unmarkBtn);
         bottom.add(deleteBtn);
         bottom.add(exitBtn);
 
@@ -347,6 +350,17 @@ public class TaskManagerApp extends JFrame
         if (idx < 0) return;
 
         taskManager.markTaskDone(idx);
+        saveSafely();
+        refreshList();
+        taskList.setSelectedIndex(idx);
+    }
+
+    private void markPending()
+    {
+        int idx = taskList.getSelectedIndex();
+        if (idx < 0) return;
+
+        taskManager.markTaskPending(idx);
         saveSafely();
         refreshList();
         taskList.setSelectedIndex(idx);

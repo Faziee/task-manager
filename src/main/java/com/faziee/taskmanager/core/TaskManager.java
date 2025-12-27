@@ -44,6 +44,17 @@ public class TaskManager
         return true;
     }
 
+    public boolean markTaskPending(int indexZeroBased)
+    {
+        if (indexZeroBased < 0 || indexZeroBased >= this.tasks.size())
+        {
+            return false;
+        }
+
+        this.tasks.get(indexZeroBased).markPending();
+        return true;
+    }
+
     public boolean isEmpty()
     {
         return this.tasks.isEmpty();
