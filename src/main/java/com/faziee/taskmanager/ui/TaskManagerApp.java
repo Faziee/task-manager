@@ -6,10 +6,10 @@ import com.faziee.taskmanager.storage.TaskRepository;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class TaskManagerApp extends JFrame
@@ -27,6 +27,18 @@ public class TaskManagerApp extends JFrame
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
+    private static final Color APP_BG   = new Color(244, 246, 250);
+    private static final Color CARD_BG  = new Color(252, 253, 255);
+
+    private static final Color PRIMARY      = new Color(108, 160, 150);
+    private static final Color PRIMARY_DARK = new Color(88, 138, 130);
+
+    private static final Color DANGER       = new Color(232, 95, 95);
+    private static final Color DANGER_TEXT  = new Color(190, 60, 60);
+
+    private static final Color TEXT_MUTED   = new Color(115, 115, 130);
+    private static final Color TEXT_STRONG  = new Color(35, 35, 42);
+
     public TaskManagerApp(TaskManager taskManager, TaskRepository repository)
     {
         super("Personal Task Manager");
@@ -34,7 +46,7 @@ public class TaskManagerApp extends JFrame
         this.repository = repository;
 
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
-        setSize(900, 560);
+        setSize(1040, 650);
         setLocationRelativeTo(null);
 
         buildUi();
@@ -60,42 +72,50 @@ public class TaskManagerApp extends JFrame
 
     private void buildUi()
     {
-        JPanel root = new JPanel(new BorderLayout(14, 14));
-        root.setBorder(new EmptyBorder(16, 16, 16, 16));
-        root.setBackground(new Color(245, 246, 248));
+        JPanel root = new JPanel(new BorderLayout(18, 18));
+        root.setBorder(new EmptyBorder(26, 26, 26, 26)); // ✅ outer padding
+        root.setBackground(APP_BG);
         setContentPane(root);
 
         JLabel header = new JLabel("Personal Task Manager");
-        header.setFont(header.getFont().deriveFont(Font.BOLD, 22f));
+        header.setFont(header.getFont().deriveFont(Font.BOLD, 30f));
+        header.setBorder(new EmptyBorder(0, 2, 6, 2));
         root.add(header, BorderLayout.NORTH);
 
-        // Task list
+        // Left list
         taskList.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-        taskList.setFixedCellHeight(56);
+        taskList.setFixedCellHeight(78);
         taskList.setCellRenderer(new TaskListRenderer());
+        taskList.setBackground(CARD_BG);
 
         JScrollPane listScroll = new JScrollPane(taskList);
-        listScroll.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
-        listScroll.getViewport().setBackground(new Color(248, 249, 251));
+        listScroll.setBorder(BorderFactory.createEmptyBorder());
+        listScroll.getViewport().setBackground(CARD_BG);
 
-        // Details
-        JPanel details = buildDetailsPanel();
+        JPanel listCard = wrapCard(listScroll);
 
-        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listScroll, details);
-        split.setResizeWeight(0.4);
+        // Right details
+        JPanel detailsCard = wrapCard(buildDetailsPanel());
+
+        JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listCard, detailsCard);
+        split.setResizeWeight(0.34);
         split.setBorder(null);
+        split.setOpaque(false);
+        split.setBackground(APP_BG);
+        split.setDividerSize(10);
 
         root.add(split, BorderLayout.CENTER);
 
         // Buttons
-        JPanel buttons = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 0));
-        buttons.setOpaque(false);
+        JPanel bottom = new JPanel(new FlowLayout(FlowLayout.RIGHT, 12, 0));
+        bottom.setOpaque(false);
+        bottom.setBorder(new EmptyBorder(4, 0, 0, 0));
 
-        JButton addBtn = new JButton("Add");
-        JButton editBtn = new JButton("Edit");
-        JButton doneBtn = new JButton("Mark Done");
-        JButton deleteBtn = new JButton("Delete");
-        JButton exitBtn = new JButton("Exit");
+        JButton addBtn = modernButton("Add", ButtonStyle.PRIMARY);
+        JButton editBtn = modernButton("Edit", ButtonStyle.SECONDARY);
+        JButton doneBtn = modernButton("Mark Done", ButtonStyle.SECONDARY);
+        JButton deleteBtn = modernButton("Delete", ButtonStyle.DANGER);
+        JButton exitBtn = modernButton("Exit", ButtonStyle.GHOST);
 
         addBtn.addActionListener(e -> addTask());
         editBtn.addActionListener(e -> editTask());
@@ -103,46 +123,45 @@ public class TaskManagerApp extends JFrame
         deleteBtn.addActionListener(e -> deleteSelected());
         exitBtn.addActionListener(e -> exitSafely());
 
-        buttons.add(addBtn);
-        buttons.add(editBtn);
-        buttons.add(doneBtn);
-        buttons.add(deleteBtn);
-        buttons.add(exitBtn);
+        bottom.add(addBtn);
+        bottom.add(editBtn);
+        bottom.add(doneBtn);
+        bottom.add(deleteBtn);
+        bottom.add(exitBtn);
 
-        root.add(buttons, BorderLayout.SOUTH);
+        root.add(bottom, BorderLayout.SOUTH);
     }
 
     private JPanel buildDetailsPanel()
     {
         JPanel panel = new JPanel(new GridBagLayout());
-        panel.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
-        panel.setBackground(new Color(250, 250, 252));
+        panel.setBackground(CARD_BG);
 
         GridBagConstraints c = new GridBagConstraints();
-        c.insets = new Insets(8, 12, 8, 12);
+        c.gridx = 0;
+        c.gridy = 0;
         c.anchor = GridBagConstraints.NORTHWEST;
 
-        JLabel titleKey = key("Title");
-        JLabel priorityKey = key("Priority");
-        JLabel dueKey = key("Due date");
-        JLabel notesKey = key("Notes");
-
-        styleValue(titleValue, 16f, true);
-        styleValue(priorityValue, 14f, false);
-        styleValue(dueDateValue, 14f, false);
-
-        c.gridx = 0; c.gridy = 0;
-        panel.add(titleKey, c);
+        // Left column (keys)
+        c.insets = new Insets(10, 0, 10, 18);
+        panel.add(key("Title"), c);
         c.gridy++;
-        panel.add(priorityKey, c);
+        panel.add(key("Priority"), c);
         c.gridy++;
-        panel.add(dueKey, c);
+        panel.add(key("Due date"), c);
         c.gridy++;
-        panel.add(notesKey, c);
+        panel.add(key("Notes"), c);
 
-        c.gridx = 1; c.gridy = 0;
+        // Right column (values)
+        c.gridx = 1;
+        c.gridy = 0;
+        c.weightx = 1.0;
         c.fill = GridBagConstraints.HORIZONTAL;
-        c.weightx = 1;
+        c.insets = new Insets(8, 0, 8, 0);
+
+        styleValue(titleValue, 22f, true);
+        styleValue(priorityValue, 15f, false);
+        styleValue(dueDateValue, 15f, false);
 
         panel.add(titleValue, c);
         c.gridy++;
@@ -150,19 +169,30 @@ public class TaskManagerApp extends JFrame
         c.gridy++;
         panel.add(dueDateValue, c);
 
+        // Notes (scroll area)
         c.gridy++;
-        c.weighty = 1;
+        c.weighty = 1.0;
         c.fill = GridBagConstraints.BOTH;
+        c.insets = new Insets(10, 0, 0, 0);
 
         notesValue.setEditable(false);
         notesValue.setLineWrap(true);
         notesValue.setWrapStyleWord(true);
-        notesValue.setFont(notesValue.getFont().deriveFont(14f));
-        notesValue.setBorder(new EmptyBorder(10, 10, 10, 10));
+        notesValue.setFont(notesValue.getFont().deriveFont(15f));
+        notesValue.setBackground(new Color(245, 247, 250));
+        notesValue.setBorder(new EmptyBorder(14, 14, 14, 14));
 
         JScrollPane notesScroll = new JScrollPane(notesValue);
-        notesScroll.setBorder(new LineBorder(new Color(220, 220, 220), 1, true));
-        panel.add(notesScroll, c);
+        notesScroll.setBorder(BorderFactory.createEmptyBorder());
+        notesScroll.getViewport().setBackground(Color.WHITE);
+        notesScroll.setBackground(CARD_BG);
+
+        JPanel notesHolder = new JPanel(new BorderLayout());
+        notesHolder.setBackground(CARD_BG);
+        notesHolder.setBorder(new EmptyBorder(2, 0, 0, 0));
+        notesHolder.add(notesScroll, BorderLayout.CENTER);
+
+        panel.add(notesHolder, c);
 
         return panel;
     }
@@ -170,14 +200,81 @@ public class TaskManagerApp extends JFrame
     private JLabel key(String text)
     {
         JLabel l = new JLabel(text);
-        l.setFont(l.getFont().deriveFont(Font.PLAIN, 12f));
-        l.setForeground(new Color(120, 120, 120));
+        l.setFont(l.getFont().deriveFont(Font.PLAIN, 13f));
+        l.setForeground(TEXT_MUTED);
         return l;
     }
 
     private void styleValue(JLabel label, float size, boolean bold)
     {
         label.setFont(label.getFont().deriveFont(bold ? Font.BOLD : Font.PLAIN, size));
+        label.setForeground(TEXT_STRONG);
+    }
+
+    private JPanel wrapCard(JComponent inner)
+    {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(CARD_BG);
+        card.setBorder(new EmptyBorder(16, 16, 16, 16)); // padding “card”
+        card.add(inner, BorderLayout.CENTER);
+        return card;
+    }
+
+    private enum ButtonStyle { PRIMARY, SECONDARY, DANGER, GHOST }
+
+    private JButton modernButton(String text, ButtonStyle style)
+    {
+        JButton b = new JButton(text);
+
+        b.setFocusPainted(false);
+        b.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+        b.setFont(b.getFont().deriveFont(Font.BOLD, 13.5f));
+        b.setOpaque(true);
+        b.setContentAreaFilled(true);
+
+        Insets padding = new Insets(10, 18, 10, 18);
+
+        switch (style)
+        {
+            case PRIMARY ->
+            {
+                b.setBackground(PRIMARY);
+                b.setForeground(Color.WHITE);
+                b.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(PRIMARY_DARK, 1, true),
+                        new EmptyBorder(padding)
+                ));
+            }
+            case SECONDARY ->
+            {
+                b.setBackground(new Color(245, 246, 250));
+                b.setForeground(new Color(35, 35, 40));
+                b.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(224, 228, 236), 1, true),
+                        new EmptyBorder(padding)
+                ));
+            }
+            case DANGER ->
+            {
+                b.setBackground(new Color(255, 236, 236));
+                b.setForeground(DANGER_TEXT);
+                b.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(242, 180, 180), 1, true),
+                        new EmptyBorder(padding)
+                ));
+            }
+            case GHOST ->
+            {
+                b.setBackground(APP_BG);
+                b.setForeground(new Color(60, 60, 70));
+                b.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(new Color(224, 228, 236), 1, true),
+                        new EmptyBorder(padding)
+                ));
+            }
+        }
+
+        return b;
     }
 
     private void refreshList()
@@ -202,14 +299,34 @@ public class TaskManagerApp extends JFrame
             titleValue.setText("-");
             priorityValue.setText("-");
             dueDateValue.setText("-");
+            dueDateValue.setForeground(TEXT_STRONG);
             notesValue.setText("");
             return;
         }
 
         titleValue.setText(t.getTitle());
         priorityValue.setText(t.getPriority().name());
-        dueDateValue.setText(t.getDueDate() == null ? "-" : DATE_FMT.format(t.getDueDate()));
+
+        if (t.getDueDate() == null)
+        {
+            dueDateValue.setText("-");
+            dueDateValue.setForeground(TEXT_STRONG);
+        }
+        else
+        {
+            dueDateValue.setText(DATE_FMT.format(t.getDueDate()));
+            if (!t.isCompleted() && t.getDueDate().isBefore(LocalDate.now()))
+            {
+                dueDateValue.setForeground(DANGER);
+            }
+            else
+            {
+                dueDateValue.setForeground(TEXT_STRONG);
+            }
+        }
+
         notesValue.setText(t.getNotes() == null ? "" : t.getNotes());
+        notesValue.setCaretPosition(0);
     }
 
     private void addTask()

@@ -5,6 +5,7 @@ import com.faziee.taskmanager.core.Task;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
+import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
 public class TaskListRenderer extends JPanel implements ListCellRenderer<Task>
@@ -14,24 +15,24 @@ public class TaskListRenderer extends JPanel implements ListCellRenderer<Task>
     private final JLabel titleLabel = new JLabel();
     private final JLabel metaLabel = new JLabel();
 
-    // 🎨 Pastel palette
-    private static final Color BG_NORMAL = new Color(248, 249, 251);
-    private static final Color BG_SELECTED = new Color(180, 210, 245);
-    private static final Color BG_DONE = new Color(230, 240, 232);
+    private static final Color BG_NORMAL   = new Color(252, 253, 255);   // white
+    private static final Color BG_SELECTED = new Color(210, 220, 235);   // blue-gray (selection)
+    private static final Color BG_DONE     = new Color(232, 246, 238);   // mint (completed)
+    private static final Color BG_OVERDUE  = new Color(255, 238, 238);   // soft red
 
-    private static final Color TEXT_PRIMARY = new Color(30, 30, 30);
-    private static final Color TEXT_MUTED = new Color(130, 130, 130);
-    private static final Color TEXT_DONE = new Color(150, 150, 150);
+    private static final Color TEXT_PRIMARY = new Color(28, 28, 32);
+    private static final Color TEXT_MUTED   = new Color(115, 115, 130);
+    private static final Color TEXT_DONE    = new Color(140, 140, 150);
+    private static final Color DANGER       = new Color(220, 85, 85);
 
     public TaskListRenderer()
     {
-        setLayout(new BorderLayout(0, 6));
-        setBorder(new EmptyBorder(10, 12, 10, 12));
+        setLayout(new BorderLayout(0, 8));
+        setBorder(new EmptyBorder(14, 18, 14, 18));
         setOpaque(true);
 
-        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 15f));
-        metaLabel.setFont(metaLabel.getFont().deriveFont(Font.PLAIN, 12.5f));
-        metaLabel.setForeground(TEXT_MUTED);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(Font.BOLD, 16f));
+        metaLabel.setFont(metaLabel.getFont().deriveFont(12.8f));
 
         add(titleLabel, BorderLayout.NORTH);
         add(metaLabel, BorderLayout.SOUTH);
@@ -45,8 +46,13 @@ public class TaskListRenderer extends JPanel implements ListCellRenderer<Task>
             boolean isSelected,
             boolean cellHasFocus)
     {
-        // ----- Text -----
-        titleLabel.setText(task.isCompleted() ? "✓ " + task.getTitle() : task.getTitle());
+        boolean overdue = !task.isCompleted()
+                && task.getDueDate() != null
+                && task.getDueDate().isBefore(LocalDate.now());
+
+        titleLabel.setText(task.isCompleted()
+                ? "✓ " + task.getTitle()
+                : task.getTitle());
 
         String meta = task.getPriority().name();
         if (task.getDueDate() != null)
@@ -55,7 +61,6 @@ public class TaskListRenderer extends JPanel implements ListCellRenderer<Task>
         }
         metaLabel.setText(meta);
 
-        // ----- Colors -----
         if (task.isCompleted())
         {
             setBackground(BG_DONE);
@@ -65,8 +70,14 @@ public class TaskListRenderer extends JPanel implements ListCellRenderer<Task>
         else if (isSelected)
         {
             setBackground(BG_SELECTED);
-            titleLabel.setForeground(Color.WHITE);
-            metaLabel.setForeground(Color.WHITE);
+            titleLabel.setForeground(TEXT_PRIMARY);
+            metaLabel.setForeground(TEXT_MUTED);
+        }
+        else if (overdue)
+        {
+            setBackground(BG_OVERDUE);
+            titleLabel.setForeground(TEXT_PRIMARY);
+            metaLabel.setForeground(DANGER);
         }
         else
         {
