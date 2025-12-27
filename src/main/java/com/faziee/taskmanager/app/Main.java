@@ -1,9 +1,9 @@
 package com.faziee.taskmanager.app;
+
 import com.faziee.taskmanager.core.TaskManager;
 import com.faziee.taskmanager.storage.TaskRepository;
 import com.faziee.taskmanager.ui.TaskManagerApp;
 import com.formdev.flatlaf.FlatLightLaf;
-
 
 import javax.swing.*;
 
@@ -13,12 +13,10 @@ public class Main
     {
         try
         {
-            System.setProperty("flatlaf.uiScale", "1.0");
-            System.setProperty("flatlaf.useWindowDecorations", "true");
-            System.setProperty("flatlaf.menuBarEmbedded", "true");
-            System.setProperty("flatlaf.roundedCorners", "true");
-            UIManager.put("defaultFont", UIManager.getFont("Label.font").deriveFont(15f));
-
+            UIManager.put(
+                    "defaultFont",
+                    UIManager.getFont("Label.font").deriveFont(15f)
+            );
             UIManager.setLookAndFeel(new FlatLightLaf());
         }
         catch (Exception e)

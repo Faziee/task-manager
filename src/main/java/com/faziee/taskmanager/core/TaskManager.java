@@ -33,17 +33,14 @@ public class TaskManager
         this.tasks.remove(indexZeroBased);
     }
 
-    public boolean markTaskDone(int oneBasedIndex)
+    public boolean markTaskDone(int indexZeroBased)
     {
-        int idx = oneBasedIndex - 1;
-
-        if (idx < 0 || idx >= this.tasks.size())
+        if (indexZeroBased < 0 || indexZeroBased >= this.tasks.size())
         {
             return false;
         }
 
-        this.tasks.get(idx).markCompleted();
-
+        this.tasks.get(indexZeroBased).markCompleted();
         return true;
     }
 

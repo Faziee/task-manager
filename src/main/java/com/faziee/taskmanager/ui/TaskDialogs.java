@@ -65,7 +65,7 @@ public class TaskDialogs
         dateRow.add(dateHint);
         dateRow.setOpaque(false);
 
-        // ---------- Layout ----------
+        // Layout
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 

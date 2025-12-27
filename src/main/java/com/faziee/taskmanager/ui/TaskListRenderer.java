@@ -12,20 +12,20 @@ public class TaskListRenderer extends JPanel implements ListCellRenderer<Task>
 {
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-    private static final Color BG_NORMAL   = new Color(252, 253, 255);   // white
-    private static final Color BG_SELECTED = new Color(210, 220, 235);   // blue-gray (selection)
-    private static final Color BG_DONE     = new Color(232, 246, 238);   // mint (completed)
-    private static final Color BG_OVERDUE  = new Color(255, 238, 238);   // soft red
+    private static final Color BG_NORMAL   = new Color(252, 253, 255);
+    private static final Color BG_SELECTED = new Color(210, 220, 235);
+    private static final Color BG_DONE     = new Color(232, 246, 238);
+    private static final Color BG_OVERDUE  = new Color(255, 238, 238);
 
     private static final Color TEXT_PRIMARY = new Color(28, 28, 32);
     private static final Color TEXT_MUTED   = new Color(115, 115, 130);
     private static final Color TEXT_DONE    = new Color(140, 140, 150);
     private static final Color DANGER       = new Color(220, 85, 85);
 
-    private static final Color ACCENT_SELECTED = new Color(120, 140, 175); // slightly deeper than BG_SELECTED
-    private static final Color ACCENT_DONE     = new Color(120, 185, 150); // mint accent
+    private static final Color ACCENT_SELECTED = new Color(120, 140, 175);
+    private static final Color ACCENT_DONE     = new Color(120, 185, 150);
     private static final Color ACCENT_OVERDUE  = DANGER;                  // red accent
-    private static final Color SEPARATOR       = new Color(232, 236, 244); // subtle line
+    private static final Color SEPARATOR       = new Color(232, 236, 244);
 
     private final JPanel accentBar = new JPanel();
     private final JLabel titleLabel = new JLabel();
@@ -46,7 +46,7 @@ public class TaskListRenderer extends JPanel implements ListCellRenderer<Task>
         metaLabel.setFont(metaLabel.getFont().deriveFont(12.8f));
 
         content.setBorder(new EmptyBorder(14, 16, 14, 18));
-        content.setOpaque(false); // background comes from parent row
+        content.setOpaque(false);
 
         content.add(titleLabel, BorderLayout.NORTH);
         content.add(metaLabel, BorderLayout.SOUTH);

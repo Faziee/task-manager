@@ -11,11 +11,6 @@ public class Task
     private String notes;
     private boolean completed;
 
-    public Task()
-    {
-
-    }
-
     public Task(String title, Priority priority, LocalDate dueDate, String notes)
     {
         this.title = Objects.requireNonNull(title);
@@ -24,12 +19,6 @@ public class Task
         this.notes = notes;
         this.completed = false;
     }
-
-    // Backwards-compat constructor (for old code for storage), remove later
-//    public Task(String title)
-//    {
-//        this(title, Priority.MEDIUM, null, null);
-//    }
 
     public String getTitle()
     {
