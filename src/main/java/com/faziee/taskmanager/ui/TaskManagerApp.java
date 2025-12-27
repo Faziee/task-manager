@@ -27,8 +27,8 @@ public class TaskManagerApp extends JFrame
 
     private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ISO_LOCAL_DATE;
 
-    private static final Color APP_BG   = new Color(244, 246, 250);
-    private static final Color CARD_BG  = new Color(252, 253, 255);
+    private static final Color APP_BG   = new Color(248, 248, 248);
+    private static final Color CARD_BG  = new Color(255, 255, 255);
 
     private static final Color PRIMARY      = new Color(108, 160, 150);
     private static final Color PRIMARY_DARK = new Color(88, 138, 130);
@@ -93,7 +93,7 @@ public class TaskManagerApp extends JFrame
         listScroll.getViewport().setBackground(CARD_BG);
 
         JPanel listCard = wrapCard(listScroll);
-        JPanel detailsCard = wrapCard(buildDetailsPanel());
+        JPanel detailsCard = wrapDetailsCard(buildDetailsPanel());
 
         JSplitPane split = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, listCard, detailsCard);
         split.setResizeWeight(0.34);
@@ -111,8 +111,8 @@ public class TaskManagerApp extends JFrame
 
         JButton addBtn = modernButton("Add", ButtonStyle.PRIMARY);
         JButton editBtn = modernButton("Edit", ButtonStyle.SECONDARY);
-        JButton doneBtn = modernButton("Mark Done", ButtonStyle.SECONDARY);
-        JButton unmarkBtn = modernButton("Mark Pending", ButtonStyle.SECONDARY);
+        JButton doneBtn = modernButton("Done", ButtonStyle.SECONDARY);
+        JButton unmarkBtn = modernButton("Undo", ButtonStyle.SECONDARY);
         JButton deleteBtn = modernButton("Delete", ButtonStyle.DANGER);
         JButton exitBtn = modernButton("Exit", ButtonStyle.SECONDARY);
 
@@ -181,7 +181,7 @@ public class TaskManagerApp extends JFrame
         notesValue.setWrapStyleWord(true);
         notesValue.setFont(notesValue.getFont().deriveFont(15f));
 
-        notesValue.setBackground(new Color(242, 244, 248));
+        notesValue.setBackground(new Color(243, 243, 243, 255));
         notesValue.setBorder(new EmptyBorder(14, 14, 14, 14));
 
         JScrollPane notesScroll = new JScrollPane(notesValue);
@@ -222,6 +222,17 @@ public class TaskManagerApp extends JFrame
         return card;
     }
 
+    private JPanel wrapDetailsCard(JComponent inner)
+    {
+        JPanel card = new JPanel(new BorderLayout());
+        card.setBackground(CARD_BG);
+
+        card.setBorder(new EmptyBorder(20, 45, 20, 45));
+
+        card.add(inner, BorderLayout.CENTER);
+        return card;
+    }
+
     private enum ButtonStyle { PRIMARY, SECONDARY, DANGER }
 
     private JButton modernButton(String text, ButtonStyle style)
@@ -249,10 +260,10 @@ public class TaskManagerApp extends JFrame
             }
             case SECONDARY ->
             {
-                b.setBackground(new Color(245, 246, 250));
+                b.setBackground(new Color(228, 230, 239));
                 b.setForeground(new Color(35, 35, 40));
                 b.setBorder(BorderFactory.createCompoundBorder(
-                        BorderFactory.createLineBorder(new Color(224, 228, 236), 1, true),
+                        BorderFactory.createLineBorder(new Color(218, 220, 229), 1, true),
                         new EmptyBorder(padding)
                 ));
             }
